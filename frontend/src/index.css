@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #EEF1EA;
+  color: #1F2A44;
+}
+
+/* Visible focus ring everywhere, keyboard-accessible */
+:focus-visible {
+  outline: 2px solid #2F6F62;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* --- Signature element: a perforated "claim stub" tag, like a physical
+   lost & found ticket with a tear-off stub showing the match score. --- */
+.stub-card {
+  position: relative;
+  background: #FFFDF8;
+  border: 1px solid #D8DACD;
+  border-radius: 2px;
+}
+
+.stub-tear {
+  position: relative;
+  border-left: 1px dashed #C7CABB;
+}
+
+.stub-tear::before,
+.stub-tear::after {
+  content: "";
+  position: absolute;
+  left: -6px;
+  width: 12px;
+  height: 12px;
+  background: #EEF1EA;
+  border-radius: 50%;
+}
+.stub-tear::before {
+  top: -6px;
+}
+.stub-tear::after {
+  bottom: -6px;
+}
+
+.rotate-stamp {
+  transform: rotate(-6deg);
+}
+
+.font-stamp {
+  letter-spacing: 0.08em;
+}
