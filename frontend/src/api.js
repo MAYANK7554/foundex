@@ -1,5 +1,10 @@
 const BASE = "/api";
 
+let onUnauthorized = null;
+export function setUnauthorizedHandler(fn) {
+  onUnauthorized = fn;
+}
+
 async function request(path, { method = "GET", body, token } = {}) {
   const res = await fetch(`${BASE}${path}`, {
     method,
@@ -12,6 +17,8 @@ async function request(path, { method = "GET", body, token } = {}) {
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
+    // A 401 on an authenticated request means the session expired or was revoked.
+    if (res.status === 401 && token && onUnauthorized) onUnauthorized();
     throw new Error(data.error || "Something went wrong. Please try again.");
   }
   return data;
@@ -26,13 +33,13 @@ export const api = {
   listItems: (query, token) => request(`/items?${new URLSearchParams(query)}`, { token }),
   myItems: (token) => request("/items/mine", { token }),
   getItem: (id, token) => request(`/items/${id}`, { token }),
+  setItemStatus: (id, status, token) =>
+    request(`/items/${id}/status`, { method: "PATCH", body: { status }, token }),
+  deleteItem: (id, token) => request(`/items/${id}`, { method: "DELETE", token }),
 
   submitClaim: (payload, token) => request("/claims", { method: "POST", body: payload, token }),
+  myClaims: (token) => request("/claims/mine", { token }),
   claimsForItem: (foundItemId, token) => request(`/claims/for-item/${foundItemId}`, { token }),
   decideClaim: (id, decision, token) =>
     request(`/claims/${id}/decision`, { method: "PATCH", body: { decision }, token }),
-
-  adminOverview: (token) => request("/admin/overview", { token }),
-  adminItems: (token) => request("/admin/items", { token }),
-  adminClaims: (token) => request("/admin/claims", { token }),
 };

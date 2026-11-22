@@ -11,7 +11,7 @@ function ItemRow({ item }) {
       className="stub-card flex items-center justify-between p-4 hover:shadow-card transition-shadow gap-3"
     >
       {item.photoUrl && (
-        <img src={item.photoUrl} alt="" className="w-14 h-14 object-cover rounded-sm border border-line shrink-0" />
+        <img src={item.photoUrl} alt="" loading="lazy" className="w-14 h-14 object-cover rounded-sm border border-line shrink-0" />
       )}
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-1">
@@ -38,6 +38,7 @@ export default function MatchesFeed() {
     setLoading(true);
     api.listItems({ type: tab, status: "active" }, token)
       .then((d) => setItems(d.items))
+      .catch(() => setItems([]))
       .finally(() => setLoading(false));
   }, [tab, token]);
 

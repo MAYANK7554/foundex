@@ -9,18 +9,26 @@ if (process.env.SMTP_HOST && process.env.SMTP_USER) {
   });
 }
 
+// Never throws: an email failing to send must not fail the request that
+// triggered it (the DB change has already happened by then).
 async function sendMail({ to, subject, text }) {
   if (!transporter) {
     // No SMTP configured (fine for local dev / demo) -- just log it.
     console.log(`\n[mailer] (SMTP not configured, logging instead)\nTo: ${to}\nSubject: ${subject}\n${text}\n`);
     return { logged: true };
   }
-  return transporter.sendMail({
-    from: process.env.MAIL_FROM || "Campus Lost & Found <no-reply@example.edu>",
-    to,
-    subject,
-    text,
-  });
+  try {
+    await transporter.sendMail({
+      from: process.env.MAIL_FROM || "Campus Lost & Found <no-reply@example.edu>",
+      to,
+      subject,
+      text,
+    });
+    return { sent: true };
+  } catch (err) {
+    console.error(`[mailer] failed to send "${subject}" to ${to}: ${err.message}`);
+    return { error: err.message };
+  }
 }
 
 module.exports = { sendMail };

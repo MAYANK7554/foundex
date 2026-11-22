@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { api } from "../api.js";
 import { useAuth } from "../AuthContext.jsx";
 
@@ -10,6 +10,9 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from;
+  const redirectTo = from ? `${from.pathname}${from.search || ""}${from.hash || ""}` : "/feed";
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -18,7 +21,7 @@ export default function Login() {
     try {
       const data = await api.login({ email, password });
       login(data);
-      navigate("/feed");
+      navigate(redirectTo, { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {

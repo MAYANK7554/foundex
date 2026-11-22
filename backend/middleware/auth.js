@@ -7,18 +7,11 @@ function requireAuth(req, res, next) {
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = payload; // { id, email, role }
+    req.user = payload; // { id, email, name }
     next();
   } catch (err) {
     return res.status(401).json({ error: "Session expired, please log in again." });
   }
 }
 
-function requireAdmin(req, res, next) {
-  if (req.user?.role !== "admin") {
-    return res.status(403).json({ error: "Admin access only." });
-  }
-  next();
-}
-
-module.exports = { requireAuth, requireAdmin };
+module.exports = { requireAuth };

@@ -14,7 +14,7 @@ campus-lost-found/
 
 ## 1. Prerequisites
 
-- Node.js 18+
+- Node.js 20+
 - MongoDB running locally (`brew install mongodb-community` on Mac, or use
   a free [MongoDB Atlas](https://www.mongodb.com/atlas) cluster and skip
   local install)
@@ -29,8 +29,14 @@ cp .env.example .env
 
 Open `.env` and set:
 - `MONGO_URI` — local (`mongodb://localhost:27017/campus-lost-found`) or your Atlas URI
-- `JWT_SECRET` — any long random string
+- `MONGO_DB_NAME` — optional, defaults to `campus-lost-found` (used even if the URI names no database)
+- `JWT_SECRET` — a long random string; generate one with `openssl rand -hex 48`.
+  The server refuses to start if it's missing, short, or the example value.
 - `COLLEGE_EMAIL_DOMAINS` — comma-separated list, e.g. `nsut.ac.in,nsit.net.in`
+- `ENFORCE_COLLEGE_EMAIL` — set to `true` to only allow those domains to
+  register (off by default, so any email works for now)
+- `TRUST_PROXY` — set to `true` when deployed behind a reverse proxy, so login
+  rate limiting sees real client IPs
 - SMTP settings are optional — leave blank and emails just get logged to
   the terminal instead of actually sending, which is fine for a demo.
 
@@ -40,7 +46,7 @@ Then run it:
 npm run dev
 ```
 
-Should print `[db] connected` and `[server] listening on http://localhost:5000`.
+Should print `[db] connected` and `[server] listening on http://localhost:5001`.
 
 ## 3. Frontend setup
 
@@ -53,7 +59,7 @@ npm run dev
 ```
 
 Open the printed URL (usually `http://localhost:5173`). The dev server
-proxies `/api/*` to the backend on port 5000, so both need to be running.
+proxies `/api/*` to the backend on port 5001, so both need to be running.
 
 ## 4. Try it out
 
@@ -68,23 +74,26 @@ proxies `/api/*` to the backend on port 5000, so both need to be running.
    wallet lost near the library", same category, similar date.
 4. You should see a scored match appear immediately (and if it's a strong
    one, both users get a console-logged "email").
-5. As user B, click **This might be mine — start a claim**, answer the
-   verification question.
-6. As user A, open **My reports → that item**, review the claim, and
-   approve or reject it.
+5. As user B, open your lost report and click **This found item might be
+   mine — claim it** on the match, then answer the verification question.
+6. As user A, **My reports** shows a "claims to review" badge. Open the item,
+   compare the answer with your expected one, and approve or reject it.
+   Approving rejects any other pending claims on it.
+7. As user B, **My reports → My claims** shows the status, and the finder's
+   email once approved.
 
-## 5. Make a user an admin (security desk)
+Reports can be marked resolved, closed, reopened or deleted by their owner
+from the item page.
 
-There's no signup toggle for this on purpose. After registering, open a
-Mongo shell and flip the role manually:
+## Tests
 
-```js
-use campus-lost-found
-db.users.updateOne({ email: "you@nsut.ac.in" }, { $set: { role: "admin" } })
+```bash
+cd backend
+npm test
 ```
 
-Log out and back in, and a "Security desk" link appears in the nav with
-campus-wide stats and every report.
+Uses Node's built-in test runner (no database needed): matching engine,
+rate limiter, photo validation, item serialization and auth middleware.
 
 ## How the matching engine works
 

@@ -16,4 +16,17 @@ const claimSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Finder's review list and pending-claim counts.
+claimSchema.index({ foundItem: 1, status: 1 });
+// "My claims" for a claimant.
+claimSchema.index({ claimant: 1, createdAt: -1 });
+// Lost-report cleanup on delete.
+claimSchema.index({ lostItem: 1 });
+// One pending claim per person per item, enforced by the database so two
+// simultaneous submits can't both get through.
+claimSchema.index(
+  { foundItem: 1, claimant: 1 },
+  { unique: true, partialFilterExpression: { status: "pending" }, name: "one_pending_claim_per_user" }
+);
+
 module.exports = mongoose.model("Claim", claimSchema);

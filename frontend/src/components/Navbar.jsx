@@ -23,11 +23,8 @@ export default function Navbar() {
             <Link to="/report/found" className="hover:text-tealDark">Report found</Link>
             <Link to="/feed" className="hover:text-tealDark">Matches feed</Link>
             <Link to="/mine" className="hover:text-tealDark">My reports</Link>
-            {user.role === "admin" && (
-              <Link to="/admin" className="hover:text-stamp">Security desk</Link>
-            )}
             <span className="text-inkfaint">|</span>
-            <span className="text-inkfaint">{user.name.split(" ")[0]}</span>
+            <span className="text-inkfaint">{user.name?.split(" ")[0]}</span>
             <button
               onClick={() => { logout(); navigate("/login"); }}
               className="text-inkfaint hover:text-stamp underline underline-offset-2"

@@ -16,7 +16,9 @@ export default function MatchTicket({ item, score, breakdown, onClaim }) {
   return (
     <div className="stub-card flex shadow-card overflow-hidden">
       {item.photoUrl && (
-        <img src={item.photoUrl} alt="" className="w-20 h-20 object-cover shrink-0 m-4 mr-0 rounded-sm border border-line" />
+        <Link to={`/item/${item._id}`} className="shrink-0 m-4 mr-0" tabIndex={-1} aria-hidden="true">
+          <img src={item.photoUrl} alt="" loading="lazy" className="w-20 h-20 object-cover rounded-sm border border-line hover:opacity-90" />
+        </Link>
       )}
       <div className="flex-1 p-4">
         <div className="flex items-center gap-2 mb-1">
@@ -27,16 +29,19 @@ export default function MatchTicket({ item, score, breakdown, onClaim }) {
             {item.location}
           </span>
         </div>
-        <p className="font-body text-ink text-[15px] leading-snug">{item.description}</p>
+        <Link to={`/item/${item._id}`} className="font-body text-ink text-[15px] leading-snug hover:text-tealDark hover:underline underline-offset-2">
+          {item.description}
+        </Link>
         <p className="font-mono text-[11px] text-inkfaint mt-2">
-          reported by {item.reporter?.name || "a student"} · {new Date(item.date).toLocaleDateString()}
+          reported by {item.reporter?.name || "a student"} · {new Date(item.date).toLocaleDateString()} ·{" "}
+          <Link to={`/item/${item._id}`} className="text-teal hover:text-tealDark">view →</Link>
         </p>
         {onClaim && (
           <button
             onClick={onClaim}
             className="mt-3 text-sm font-body text-teal hover:text-tealDark underline underline-offset-2"
           >
-            This might be mine — start a claim
+            This found item might be mine — claim it
           </button>
         )}
       </div>
